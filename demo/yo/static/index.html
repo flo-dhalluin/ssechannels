@@ -1,0 +1,30 @@
+<html>
+<head> 
+  <title> Yo! </title> 
+</head>
+
+<body>
+ <h1> Man that's ugly </h1>
+
+ <p> but it works </p>
+
+ <div id="eventbox"></div>
+
+<script>
+  (function() {
+
+     var sse = new EventSource("/event/");
+  
+     sse.addEventListener("yo", function(e) {
+       var el = document.createElement('p');
+       el.innerHTML = e.data;
+        console.log("server said yo");
+       console.log(e.data);
+       var eventbox = document.querySelector("#eventbox");
+
+       eventbox.appendChild(el);
+     });
+  })();
+</script>
+</body>
+</html>
