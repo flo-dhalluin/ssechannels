@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
-    'yo',
+    'yo.apps.YoConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'demo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,3 +129,5 @@ CHANNEL_LAYERS = {
         "ROUTING": "demo.routing.channel_routing",
     },
 }
+
+LOGIN_URL="login"

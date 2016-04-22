@@ -7,23 +7,56 @@
  <h1> Man that's ugly </h1>
 
  <p> but it works </p>
+ 
 
- <div id="eventbox"></div>
+ <a href="l/login/?next=/"> Login </a>
+
+ <div style="border: 2px solid black; padding: 1em">
+ <input id="to-user"></input> 
+ <button id="yo-button"> Yo! </button>
+ </div>
+ <div>
+ <div style="width:40%;float:left; border:1px solid blue;">
+   <h2> All Events </h2>
+   <div id="all"></div>
+ </div>
+
+ <div style="width:40%;float:left; border:1px solid blue;">
+   <h2> My Events </h2>
+   <div id="mine"></div>
+ </div>
+ </div>
 
 <script>
   (function() {
 
-     var sse = new EventSource("/event/");
+     var makeShoutBox = function(url, boxid) {
+          var sse = new EventSource(url);
   
-     sse.addEventListener("yo", function(e) {
-       var el = document.createElement('p');
-       el.innerHTML = e.data;
-        console.log("server said yo");
-       console.log(e.data);
-       var eventbox = document.querySelector("#eventbox");
+          sse.addEventListener("yo", function(e) {
 
-       eventbox.appendChild(el);
-     });
+           var el = document.createElement('p');
+           el.innerHTML = e.data;
+           console.log(e.data);
+           var eventbox = document.querySelector(boxid);
+
+          eventbox.appendChild(el);
+       });
+    };
+  
+    makeShoutBox("/all_yos/", "#all");
+    makeShoutBox("/my_yos/", "#mine");
+
+    var yoButton = document.querySelector("#yo-button");
+  
+    yoButton.addEventListener("click", function(e) {
+      var to_user = document.querySelector("#to-user").value;
+      console.log("clicked", to_user);
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "yo/" + to_user, true);
+      xhttp.send(null);
+    });
+
   })();
 </script>
 </body>

@@ -1,24 +1,29 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from channels import Group
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
+
+from .models import Yo
+from django.contrib.auth.models import User
 
 from ssechannels import sse
 
-# that's an event source, note the raise at the end : 
-# this tells channels view processor to fuck off. 
-
-# use cases -> subscribe --> add reply_channel to some named group
-
-# user-level event 
-# (think async messaging "you've got mail")
-# store the reply_channel id in some user/session attached storage (short term) ? 
-
-@sse.subscribe("yo")
-def event(rq) :
+@sse.subscribe("allyo")
+def yo_events(rq) :
     pass
     # or -- return sse.SubscribeResponse("yo") ??
 
-def say_yo(rq):
+@sse.subscribe() # not specifying a channel name
+def yo_for_user_events(rq):
+    if(not rq.user.is_authenticated()):
+        return HttpResponseForbidden("Please login")
+
+    return "yo.%s"%rq.user.username # returns channel name
+
+
+@login_required
+def say_yo(rq, username):
+    to_user = get_object_or_404(User, username=username)
     # this gets sent to all subscribers
-    sse.publish("yo", b"yo", "this is yo speaking");
+    yo = Yo.objects.create(from_user=rq.user, 
+                           to_user=to_user)
     return HttpResponse("Ok")
