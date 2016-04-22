@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from channels import Group
 from channels.handler import AsgiRequest
 
@@ -14,12 +15,16 @@ def publish(group_name, event, data):
 # them subscribe decorator
 class subscribe(object):
     
-    def __init__(self, group_name) :
+    def __init__(self, group_name=None) :
         self.group_name = group_name
 
 
     def __call__(self, view) :
-        def wrapped(req) :
+        def wrapped(req, *args, **kwargs) :
+            r = view(req, *args, **kwargs)
+
+            if(isinstance(r, HttpResponse)) :
+                return r
 
             reply = {
                 'status': 200,
@@ -27,9 +32,13 @@ class subscribe(object):
                 'more_content': True
             }
         
-        
+            if(r) :
+                group_name = r
+            else : 
+                group_name = self.group_name
+
             req.message.reply_channel.send(reply)
-            Group(self.group_name).add(req.message.reply_channel)
+            Group(group_name).add(req.message.reply_channel)
 
             # pop !
             raise AsgiRequest.ResponseLater()
